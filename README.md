@@ -6,7 +6,7 @@ This repository contains the code for a basic Golang application that retrieves 
 
 ## How to run
 
-- Clone this repository by running the command `git clone https://github.com/vault-demo`
+- Clone this repository by running the command `git clone https://github.com/utibeabasi6/vault-demo`
 
 - Install Hashicorp Vault in your Kubernetes cluster by following the instructions [here](https://learn.hashicorp.com/tutorials/vault/kubernetes-minikube?in=vault/kubernetes)
 
