@@ -1,0 +1,10 @@
+global:
+  datacenter: vault-demo
+client:
+  enabled: true
+
+server:
+  replicas: 1
+  bootstrapExpect: 1
+  disruptionBudget:
+    maxUnavailable: 0
