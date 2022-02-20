@@ -25,17 +25,6 @@ spec:
         - name: vaultapp
           image: utibeabasi6/vault-app
           imagePullPolicy: Always
-          env:
-            - name: VAULT_ADDR
-              valueFrom:
-                secretKeyRef:
-                  name: dbsecrets
-                  key: vault_addr
-            - name: VAULT_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: dbsecrets
-                  key: vault_token
           ports:
           - containerPort: 3000
 
