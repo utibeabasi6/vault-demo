@@ -4,11 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
-	"time"
 
-	"github.com/hashicorp/vault/api"
 	_ "github.com/lib/pq"
 
 	"github.com/gofiber/fiber/v2"
@@ -35,10 +32,6 @@ func indexHandler(c *fiber.Ctx, db *sql.DB) error {
 
 type todo struct {
 	Item string
-}
-
-var httpClient = &http.Client{
-	Timeout: 10 * time.Second,
 }
 
 func postHandler(c *fiber.Ctx, db *sql.DB) error {
@@ -72,39 +65,14 @@ func deleteHandler(c *fiber.Ctx, db *sql.DB) error {
 }
 
 func main() {
-	// Initialize Vault
-	token := os.Getenv("VAULT_TOKEN")
-	vaultAddr := os.Getenv("VAULT_ADDR")
-
-	client, err := api.NewClient(&api.Config{Address: vaultAddr, HttpClient: httpClient})
+	// Read database secrets from the filesystem
+	dat, err := os.ReadFile("/vault/secrets/database-config.txt")
 	if err != nil {
-		panic(err)
-	}
-	client.SetToken(token)
-
-	// Read Username and Password from Vault
-	secret, err := client.Logical().Read("secret/data/goapp/config")
-	if err != nil {
-		panic(err)
-	}
-
-	data, ok := secret.Data["data"].(map[string]interface{})
-	if !ok {
-		log.Fatalf("data type assertion failed: %T %#v", secret.Data["data"], secret.Data["data"])
-	}
-
-	username, ok := data["username"].(string)
-	if !ok {
-		log.Fatalf("value type assertion failed: %T %#v", data["username"], data["password"])
-	}
-
-	password, ok := data["password"].(string)
-	if !ok {
-		log.Fatalf("value type assertion failed: %T %#v", data["password"], data["password"])
+		log.Fatalf("An error occured when reading secrets from filesystem: %v", err)
 	}
 
 	// Connect to database
-	connStr := fmt.Sprintf("postgresql://%v:%v@postgres/todos?sslmode=disable", username, password)
+	connStr := string(dat)
 	fmt.Println(connStr)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
