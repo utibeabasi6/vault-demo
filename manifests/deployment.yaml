@@ -8,26 +8,36 @@ spec:
       app: vaultapp
   template:
     metadata:
+      annotations:
+        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/role: 'goapp'
+        vault.hashicorp.com/agent-inject-status: 'update'
+        vault.hashicorp.com/agent-inject-secret-database-config.txt: 'secret/data/goapp/config'
+        vault.hashicorp.com/agent-inject-template-database-config.txt: |
+          {{- with secret "secret/data/goapp/config" -}}
+          postgresql://{{ .Data.data.username }}:{{ .Data.data.password }}@postgres:5432/todos?sslmode=disable
+          {{- end -}}
       labels:
         app: vaultapp
     spec:
+      serviceAccountName: goapp
       containers:
-      - name: vaultapp
-        image: utibeabasi6/vault-app
-        imagePullPolicy: Always
-        env:
-          - name: VAULT_ADDR
-            valueFrom:
-              secretKeyRef:
-                name: dbsecrets
-                key: vault_addr
-          - name: VAULT_TOKEN
-            valueFrom:
-              secretKeyRef:
-                name: dbsecrets
-                key: vault_token
-        ports:
-        - containerPort: 3000
+        - name: vaultapp
+          image: utibeabasi6/vault-app
+          imagePullPolicy: Always
+          env:
+            - name: VAULT_ADDR
+              valueFrom:
+                secretKeyRef:
+                  name: dbsecrets
+                  key: vault_addr
+            - name: VAULT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: dbsecrets
+                  key: vault_token
+          ports:
+          - containerPort: 3000
 
 ---
 
